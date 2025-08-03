@@ -107,18 +107,6 @@ graph TD
 "Generate a full-length blog post on the topic '{{ $json.topic }}'. Format the content using clean HTML. Do not include follow-up questions or links."
 ```
 
-## 📂 Folder Structure (Optional)
-
-```
-agentic-system-n8n/
-├── README.md
-├── screenshots/
-│   ├── architecture.png
-│   ├── node-configs.png
-│   └── final-email-output.png
-└── n8n-workflow.json
-```
-
 
 ## 📈 Evaluation Highlights
 
