@@ -1,0 +1,143 @@
+{
+  "name": "Agentic Content Creator (Cohere)",
+  "nodes": [
+    {
+      "parameters": {
+        "values": {
+          "topic": "How AI is transforming education"
+        },
+        "options": {}
+      },
+      "name": "Set Topic",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "for (const item of $input.all()) {\n  const topic = item.json.topic.toLowerCase();\n  let route = \"WriterAgent\";\n  if (topic.includes(\"idea\")) {\n    route = \"IdeaAgent\";\n  } else if (topic.includes(\"summary\")) {\n    route = \"SummaryAgent\";\n  }\n  item.json.route = route;\n}\nreturn $input.all();"
+      },
+      "name": "Controller Agent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{ $json[\"route\"] }}",
+        "rules": [
+          {
+            "operation": "equal",
+            "value": "WriterAgent"
+          },
+          {
+            "operation": "equal",
+            "value": "IdeaAgent"
+          },
+          {
+            "operation": "equal",
+            "value": "SummaryAgent"
+          }
+        ]
+      },
+      "name": "Switch Agent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cohere.ai/v1/chat",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\"message\": \"Write a 300-word article on {{$json[\\\"topic\\\"]}}\"}",
+        "headerParametersJson": "{\"Authorization\": \"Bearer iCGXUnfCjb9OICXz5Sty0Rc5l6ZSseJVM3S9O5Lm\", \"Content-Type\": \"application/json\"}"
+      },
+      "name": "WriterAgent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cohere.ai/v1/chat",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\"message\": \"Give 5 content ideas about {{$json[\\\"topic\\\"]}}\"}",
+        "headerParametersJson": "{\"Authorization\": \"Bearer YOUR_API_KEY\", \"Content-Type\": \"application/json\"}"
+      },
+      "name": "IdeaAgent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cohere.ai/v1/chat",
+        "method": "POST",
+        "authentication": "predefinedCredentialType",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\"message\": \"Summarize this topic: {{$json[\\\"topic\\\"]}}\"}",
+        "headerParametersJson": "{\"Authorization\": \"Bearer YOUR_API_KEY\", \"Content-Type\": \"application/json\"}"
+      },
+      "name": "SummaryAgent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        800,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Set Topic": {
+      "main": [
+        [
+          "Controller Agent"
+        ]
+      ]
+    },
+    "Controller Agent": {
+      "main": [
+        [
+          "Switch Agent"
+        ]
+      ]
+    },
+    "Switch Agent": {
+      "main": [
+        [
+          "WriterAgent"
+        ],
+        [
+          "IdeaAgent"
+        ],
+        [
+          "SummaryAgent"
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-08-02T18:40:23.680591",
+  "active": false
+}
